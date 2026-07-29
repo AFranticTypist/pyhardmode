@@ -5,7 +5,20 @@ data.raw.technology["concrete"].ignore_tech_cost_multiplier = true
 data.raw.technology["crusher"].ignore_tech_cost_multiplier = true
 
 for name, recipe in pairs(data.raw.recipe) do
-    if recipe.category == "py-incineration" or recipe.category == "py-runoff" then
+
+	local is_incineration = false
+	local is_runoff = false
+	local is_venting = false
+	
+	if recipe.categories then
+		for _, cat in pairs(recipe.categories) do
+			if cat == "py-incineration" then is_incineration = true end
+			if cat == "py-runoff" then is_runoff = true end
+			if cat == "py-venting" then is_venting = true end
+		end
+	end
+
+    if is_incineration or is_runoff then
         if name == "water-pyvoid-fluid" then
             recipe.energy_required = 20
         elseif name == "zipir1-pyvoid" or name == "zipir1-pyvoid-hatchery" then
@@ -16,7 +29,7 @@ for name, recipe in pairs(data.raw.recipe) do
         else
             data.raw.recipe[name] = nil
         end
-    elseif recipe.category == "py-venting" then
+    elseif is_venting then
         recipe.ingredients[1].amount = 50
         RECIPE(name):add_ingredient {name = "filtration-media", amount = 1, type = "item"}:add_unlock("filtration")
         data.raw.recipe[name].energy_required = 0.5
